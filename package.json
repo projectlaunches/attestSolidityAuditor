@@ -15,7 +15,7 @@
     "codex:version": "codex --version"
   },
   "optionalDependencies": {
-    "@openai/codex": "0.144.5"
+    "@openai/codex": "0.145.0"
   },
   "engines": {
     "node": ">=22"
