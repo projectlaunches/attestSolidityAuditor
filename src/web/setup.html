@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1c2830">
+    <title>Setup &amp; how-to · attest</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="attest home">
+        <span class="brand-lockup">
+          <span class="brand-wordmark" aria-hidden="true"><span class="brand-brace">{</span><span class="brand-name">attest</span><span class="brand-brace">}</span></span>
+          <small>Local audit workbench</small>
+        </span>
+      </a>
+      <div class="top-actions">
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="/">Audit</a>
+          <a class="active" href="/setup" aria-current="page">Setup &amp; how-to</a>
+        </nav>
+        <a class="button secondary" href="/">Open auditor</a>
+      </div>
+    </header>
+
+    <main class="setup-main">
+      <section class="setup-hero">
+        <div>
+          <p class="eyebrow">Workstation configuration</p>
+          <h1>Toolchain setup</h1>
+          <p>Install the core execution layers first, then add symbolic and property engines when the contract has meaningful properties to check.</p>
+        </div>
+        <div class="trust-card setup-health">
+          <strong>Live setup status</strong>
+          <p id="setup-message" aria-live="polite">Checking this workstation…</p>
+          <button id="refresh-setup" class="button secondary" type="button">Refresh detection</button>
+        </div>
+      </section>
+
+      <aside class="setup-notice">
+        <strong>Before running installer commands</strong>
+        <span>Commands marked “upstream installer” download and execute code from the internet. Review their official source first. This project installs Aderyn through its own checksum-verifying script.</span>
+      </aside>
+
+      <section class="setup-group" aria-labelledby="foundation-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Required foundation</p><h2 id="foundation-title">Windows, WSL, and Node</h2></div>
+          <a class="text-button" href="#quick-title">Already configured? Skip to project setup</a>
+        </div>
+        <div class="setup-grid two-column">
+          <article class="setup-card" data-tool="wsl">
+            <div class="setup-card-head"><div><h3>WSL 2 with Ubuntu</h3><p>Run Solidity tooling in Linux, even when the browser is on Windows.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <p class="command-context">Run in Administrator PowerShell, then restart Windows.</p>
+            <div class="command-row"><pre><code id="cmd-wsl">wsl --install</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-wsl" data-copy-label="WSL install command" aria-label="Copy WSL install command">Copy</button></div>
+            <a class="source-link" href="https://learn.microsoft.com/windows/wsl/install" target="_blank" rel="noreferrer">Microsoft WSL installation guide ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="node">
+            <div class="setup-card-head"><div><h3>Node.js 22 or newer</h3><p>Node runs the local UI, audit orchestrator, and project dependency checks.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <p class="command-context">Official nvm upstream installer, followed by a pinned Node major.</p>
+            <div class="command-row"><pre><code id="cmd-node">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash
+source ~/.bashrc
+nvm install 22
+node --version
+npm --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-node" data-copy-label="Node installation commands" aria-label="Copy Node installation commands">Copy</button></div>
+            <a class="source-link" href="https://github.com/nvm-sh/nvm#installing-and-updating" target="_blank" rel="noreferrer">Official nvm instructions ↗</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="setup-group" aria-labelledby="core-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Core workstation</p><h2 id="core-title">Installed tools and current execution layers</h2></div>
+        </div>
+        <div class="setup-grid">
+          <article class="setup-card" data-tool="forge">
+            <div class="setup-card-head"><div><h3>Foundry and Forge</h3><p>Compiler truth plus unit, fuzz, invariant, and generated tests.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <div class="command-row"><pre><code id="cmd-foundry">curl -L https://foundry.paradigm.xyz | bash
+source ~/.bashrc
+foundryup
+forge --version
+anvil --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-foundry" data-copy-label="Foundry installation commands" aria-label="Copy Foundry installation commands">Copy</button></div>
+            <p class="setup-note">Upstream installer. Foundryup installs Forge, Anvil, Cast, and Chisel.</p>
+            <a class="source-link" href="https://getfoundry.sh/getting-started/installation" target="_blank" rel="noreferrer">Official Foundry installation ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="anvil">
+            <div class="setup-card-head"><div><h3>Anvil</h3><p>Fresh local EVM; Foundry also powers authorized pinned-block forks.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <p class="setup-note">Anvil is installed with Foundry. The auditor can launch an opt-in disposable loopback chain, validate bounded constructor inputs against compiled ABI metadata, deploy an eligible target, verify its receipt and bytecode, snapshot it, and shut it down. Separately authorized fork checks use built-in public Ethereum, Base, or BNB profiles and never broadcast.</p>
+            <div class="command-row"><pre><code id="cmd-anvil">anvil --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-anvil" data-copy-label="Anvil verification command" aria-label="Copy Anvil verification command">Copy</button></div>
+          </article>
+
+          <article class="setup-card" data-tool="slither">
+            <div class="setup-card-head"><div><h3>Slither</h3><p>Primary structured static-analysis pass.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <div class="command-row"><pre><code id="cmd-slither">curl -LsSf https://astral.sh/uv/install.sh | sh
+source "$HOME/.local/bin/env"
+uv tool install slither-analyzer
+slither --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-slither" data-copy-label="Slither installation commands" aria-label="Copy Slither installation commands">Copy</button></div>
+            <p class="setup-note">The official Slither project currently recommends uv. Python 3.10+ and a working project compiler are required.</p>
+            <a class="source-link" href="https://github.com/crytic/slither#how-to-install" target="_blank" rel="noreferrer">Official Slither installation ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="aderyn">
+            <div class="setup-card-head"><div><h3>Aderyn 0.6.8</h3><p>Independent static opinion used for conservative corroboration.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <div class="command-row"><pre><code id="cmd-aderyn">npm run tools:install-aderyn</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-aderyn" data-copy-label="verified Aderyn install command" aria-label="Copy verified Aderyn install command">Copy</button></div>
+            <p class="setup-note">This x64 Linux/WSL installer verifies the official archive and executable SHA-256. It does not accept PATH fallbacks.</p>
+            <a class="source-link" href="https://github.com/Cyfrin/aderyn/releases/tag/aderyn-v0.6.8" target="_blank" rel="noreferrer">Official Aderyn 0.6.8 release ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="solhint">
+            <div class="setup-card-head"><div><h3>Solhint Community</h3><p>Quality and maintainability diagnostics, kept outside security corroboration.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <div class="command-row"><pre><code id="cmd-solhint">npm ci --ignore-scripts
+npx --no-install solhint --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-solhint" data-copy-label="Solhint project commands" aria-label="Copy Solhint project commands">Copy</button></div>
+            <a class="source-link" href="https://github.com/solhint-community/solhint-community" target="_blank" rel="noreferrer">Solhint Community repository ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="codex">
+            <div class="setup-card-head"><div><h3>Codex and ChatGPT sign-in</h3><p>Whole-source review, contextual adjudication, and pertinent test design.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <p class="setup-note">Codex is project-pinned by <code>npm ci</code>. Restart the app after installing it, then open the auditor and select <strong>Sign in with ChatGPT</strong>; the browser completes the account flow. No API key is required for this route.</p>
+            <a class="button secondary" href="/">Open sign-in</a>
+            <a class="source-link" href="https://developers.openai.com/codex/auth" target="_blank" rel="noreferrer">Official Codex authentication ↗</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="setup-group" aria-labelledby="quick-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Project setup</p><h2 id="quick-title">Install and start this project</h2></div>
+        </div>
+        <article class="setup-card featured">
+          <div class="setup-card-head">
+            <div><h3>Project dependencies and verified Aderyn</h3><p>Continue here after Node, Foundry, and Slither are available.</p></div>
+            <span class="setup-status neutral">Project command</span>
+          </div>
+          <div class="command-row">
+            <pre><code id="cmd-project">npm ci --ignore-scripts
+npm run deps:audit
+npm run tools:install-aderyn
+npm test
+npm run launch</code></pre>
+            <button class="button secondary copy-button" type="button" data-copy="cmd-project" data-copy-label="project setup commands" aria-label="Copy project setup commands">Copy</button>
+          </div>
+          <p class="setup-note">The tester launch opens the private session once in the default browser. If the workstation blocks automatic launch, open <code>$HOME/.local/share/attest/open-attest.html</code>. Developers can use <code>npm start</code> or <code>npm run dev</code> without opening extra windows. The app stays on loopback and never broadcasts externally; the explicit Anvil option may deploy only to a disposable local development chain.</p>
+        </article>
+      </section>
+
+      <section class="setup-group" aria-labelledby="advanced-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Harness-aware</p><h2 id="advanced-title">Optional and advanced engines</h2></div>
+        </div>
+        <p class="section-intro">Host-installed tools are detected by the app but are not invoked blindly. The recommended Mythril and Echidna containers are intentionally marked for manual verification because the current probe checks host commands, not Docker images. Installation never means a property, solver, or witness is ready for a particular contract.</p>
+        <div class="setup-grid">
+          <article class="setup-card">
+            <div class="setup-card-head"><div><h3>Mythril</h3><p>Bounded multi-transaction symbolic analysis.</p></div><span class="setup-status neutral">Container — manual check</span></div>
+            <div class="command-row"><pre><code id="cmd-mythril">docker pull mythril/myth
+docker run --rm -v "$PWD":/tmp mythril/myth analyze /tmp/src/Target.sol</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-mythril" data-copy-label="Mythril Docker commands" aria-label="Copy Mythril Docker commands">Copy</button></div>
+            <p class="setup-note">Docker isolates Python-version conflicts. Replace <code>src/Target.sol</code> with the contract path inside the mounted project. This container is not included in live host-command detection. Runs must receive transaction-depth and time bounds before product integration.</p>
+            <a class="source-link" href="https://github.com/ConsenSysDiligence/mythril" target="_blank" rel="noreferrer">Official Mythril repository ↗</a>
+          </article>
+
+          <article class="setup-card">
+            <div class="setup-card-head"><div><h3>Echidna</h3><p>Stateful property fuzzing and minimized counterexamples.</p></div><span class="setup-status neutral">Container — manual check</span></div>
+            <div class="command-row"><pre><code id="cmd-echidna">docker pull ghcr.io/crytic/echidna/echidna
+docker run --rm -it -v "$PWD":/src ghcr.io/crytic/echidna/echidna</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-echidna" data-copy-label="Echidna Docker commands" aria-label="Copy Echidna Docker commands">Copy</button></div>
+            <p class="setup-note">Requires meaningful Solidity properties. The official container is intended for x86 systems and is not included in live host-command detection.</p>
+            <a class="source-link" href="https://github.com/crytic/echidna#installation" target="_blank" rel="noreferrer">Official Echidna installation ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="halmos">
+            <div class="setup-card-head"><div><h3>Halmos</h3><p>Symbolic execution of Foundry properties.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <div class="command-row"><pre><code id="cmd-halmos">uv tool install --python 3.12 halmos
+halmos --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-halmos" data-copy-label="Halmos installation commands" aria-label="Copy Halmos installation commands">Copy</button></div>
+            <a class="source-link" href="https://github.com/a16z/halmos#installation" target="_blank" rel="noreferrer">Official Halmos installation ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="medusa">
+            <div class="setup-card-head"><div><h3>Medusa</h3><p>Parallel coverage-guided stateful fuzzing.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <div class="command-row"><pre><code id="cmd-medusa">go install github.com/crytic/medusa@latest
+medusa --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-medusa" data-copy-label="Medusa installation commands" aria-label="Copy Medusa installation commands">Copy</button></div>
+            <p class="setup-note"><code>@latest</code> is mutable. Pin a reviewed release before enabling this in reproducible audits.</p>
+            <a class="source-link" href="https://github.com/crytic/medusa" target="_blank" rel="noreferrer">Official Medusa repository ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="wake">
+            <div class="setup-card-head"><div><h3>Wake</h3><p>Optional independent Python analysis and fuzz framework.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <div class="command-row"><pre><code id="cmd-wake">python3 -m venv .venv-wake
+source .venv-wake/bin/activate
+python3 -m pip install eth-wake
+wake --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-wake" data-copy-label="Wake installation commands" aria-label="Copy Wake installation commands">Copy</button></div>
+            <a class="source-link" href="https://ackee.xyz/wake/docs/latest/installation/" target="_blank" rel="noreferrer">Official Wake installation ↗</a>
+          </article>
+
+          <article class="setup-card" data-tool="solc">
+            <div class="setup-card-head"><div><h3>SMTChecker and Z3</h3><p>Optional compiler-native BMC/CHC proofs and counterexamples.</p></div><span data-status class="setup-status neutral">Checking…</span></div>
+            <div class="command-row"><pre><code id="cmd-smtchecker">uv tool install solc-select==1.2.0
+solc-select use 0.8.36 --always-install
+sudo apt-get install -y z3
+solc --version
+z3 --version</code></pre><button class="button secondary copy-button" type="button" data-copy="cmd-smtchecker" data-copy-label="SMTChecker and Z3 installation commands" aria-label="Copy SMTChecker and Z3 installation commands">Copy</button></div>
+            <p class="setup-note">Advanced tool. Change the compiler version to match the contract; solver packages vary by Linux distribution.</p>
+            <a class="source-link" href="https://docs.soliditylang.org/en/latest/smtchecker.html" target="_blank" rel="noreferrer">Official SMTChecker documentation ↗</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="setup-group" aria-labelledby="use-title">
+        <div class="section-heading"><div><p class="eyebrow">Product flow</p><h2 id="use-title">How to run an evidence-backed audit</h2></div></div>
+        <ol class="how-list">
+          <li><strong>Load source.</strong><span>Paste or select one <code>.sol</code> file. Imports are detected but never downloaded automatically.</span></li>
+          <li><strong>Declare intent.</strong><span>Choose the product type and describe trusted roles, intentional behaviors, and accepted risks.</span></li>
+          <li><strong>Choose AI scope.</strong><span>Sign in with ChatGPT and enable AI only when sending the source for review is acceptable.</span></li>
+          <li><strong>Review evidence.</strong><span>Run the audit, inspect completed and skipped engines, challenge classifications, then export Markdown or JSON.</span></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer>Install only the tools needed for the applicable properties. A larger tool count is not automatically stronger evidence.</footer>
+    <script type="module" src="/setup.js?v=20260720-session-recovery"></script>
+  </body>
+</html>

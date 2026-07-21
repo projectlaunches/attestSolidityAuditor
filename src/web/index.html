@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1c2830">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <title>attest · Evidence-backed Solidity audits</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="attest home">
+        <span class="brand-lockup">
+          <span class="brand-wordmark" aria-hidden="true"><span class="brand-brace">{</span><span class="brand-name">attest</span><span class="brand-brace">}</span></span>
+          <small>Local audit workbench</small>
+        </span>
+      </a>
+      <div class="top-actions">
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a class="active" href="/" aria-current="page">Audit</a>
+          <a href="/setup">Setup &amp; how-to</a>
+        </nav>
+        <div class="auth-area">
+          <span id="auth-status" class="muted">Checking AI connection…</span>
+          <button id="auth-button" class="button secondary" type="button">Sign in with ChatGPT</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Local Solidity security</p>
+          <h1>Audit workbench</h1>
+          <p>Build contract-specific test campaigns, run independent analyzers, and preserve the evidence behind every conclusion.</p>
+        </div>
+        <div class="trust-card">
+          <strong>Execution boundary</strong>
+          <span>No wallet or external-chain access. Optional Anvil mode uses only a disposable loopback JSON-RPC chain and unlocked development accounts.</span>
+          <span>Source leaves this machine only when AI review is enabled.</span>
+        </div>
+      </section>
+
+      <section class="capability-section" aria-labelledby="capability-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Runtime evidence</p><h2 id="capability-title">Available audit engines</h2></div>
+          <button id="refresh-tools" class="text-button" type="button">Refresh detection</button>
+        </div>
+        <p id="tool-summary" class="sr-only" aria-live="polite"></p>
+        <div id="tool-grid" class="tool-grid"></div>
+      </section>
+
+      <section class="workspace">
+        <div class="editor-panel">
+          <div class="section-heading compact">
+            <div><p class="eyebrow">Input</p><h2>Solidity source</h2></div>
+            <div class="file-picker">
+              <button id="new-audit" class="button secondary hidden" type="button">Start new audit</button>
+              <button id="load-file" class="file-button" type="button">Load .sol</button>
+              <input id="file-input" class="sr-only" type="file" accept=".sol,text/plain" aria-label="Choose a Solidity source file">
+            </div>
+          </div>
+          <label class="sr-only" for="source-editor">Solidity source code</label>
+          <div id="source-editor-shell" class="source-editor-shell">
+            <pre id="source-highlight" class="source-highlight" aria-hidden="true"><code></code></pre>
+            <textarea id="source-editor" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="source-help" placeholder="// Example only — no contract is currently loaded&#10;pragma solidity ^0.8.20;&#10;&#10;contract VulnerableVault {&#10;    // Load a .sol file or paste Solidity source to begin.&#10;}"></textarea>
+          </div>
+          <div class="editor-footer">
+            <span id="source-help">Load a .sol file or paste source. Do not include secrets or keys.</span>
+            <span id="source-size">0 bytes</span>
+          </div>
+          <details class="context-panel">
+            <summary>Declare intent and trust assumptions</summary>
+            <div class="context-grid">
+              <label>Contract/product type
+                <select id="contract-type">
+                  <option value="auto">Auto-detect</option>
+                  <option value="memecoin">Memecoin / taxed token</option>
+                  <option value="erc20-token">ERC-20 token</option>
+                  <option value="erc4626-vault">ERC-4626 vault</option>
+                  <option value="erc721-nft">NFT</option>
+                  <option value="proxy-upgradeable">Upgradeable proxy</option>
+                  <option value="governance">Governance</option>
+                  <option value="staking-rewards">Staking / rewards</option>
+                  <option value="amm-dex">AMM / DEX</option>
+                  <option value="oracle-consumer">Oracle consumer</option>
+                  <option value="bridge-messaging">Bridge / messaging</option>
+                  <option value="custom-contract">Custom</option>
+                </select>
+              </label>
+              <label>Trusted roles<textarea id="trusted-roles" class="context-input" placeholder="Example: owner is a 2/3 multisig and is trusted to change fees"></textarea></label>
+              <label>Intentional behavior<textarea id="intended-behaviors" class="context-input" placeholder="Example: swap-back intentionally permits zero minimum output during launch"></textarea></label>
+              <label>Accepted risks<textarea id="accepted-risks" class="context-input" placeholder="Example: centralized pause is accepted, but minting after launch is not"></textarea></label>
+            </div>
+          </details>
+          <div class="run-controls">
+            <div class="check-stack">
+              <fieldset class="audit-depth-options">
+                <legend>Audit depth</legend>
+                <label class="check-row"><input id="depth-review" name="audit-depth" value="review" type="radio"><span class="option-copy"><strong>AI review</strong><small>Whole-contract logic tracing, source-cited findings, and limits. No executable testing.</small></span></label>
+                <label class="check-row"><input id="depth-targeted" name="audit-depth" value="targeted" type="radio" checked><span class="option-copy"><strong>AI review + targeted testing</strong><small>AI runs only the checks needed to answer material questions, using disposable local tools or a pinned public read-only fork when relevant.</small></span></label>
+                <label class="check-row"><input id="depth-full" name="audit-depth" value="full" type="radio"><span class="option-copy"><strong>Full extensive suite</strong><small>AI attempts every applicable installed evidence class, including pinned public read-only forks, and explains unavailable or unnecessary coverage.</small></span></label>
+              </fieldset>
+              <details class="advanced-audit-settings hidden" aria-hidden="true">
+                <summary>Advanced tool boundaries</summary>
+                <div class="advanced-audit-body">
+                  <fieldset class="execution-permissions">
+                    <legend>Tool permissions</legend>
+                    <label class="check-row"><input id="allow-local-execution" type="checkbox" checked><span class="option-copy"><strong>Local compiler and Foundry</strong><small>Disposable compilation, unit, fuzz, and invariant evidence only.</small></span></label>
+                    <label class="check-row"><input id="allow-anvil" type="checkbox" checked><span class="option-copy"><strong>Disposable Anvil scenarios</strong><small>AI may deploy the submitted artifact and run typed ABI calls using local actors 0–3.</small></span></label>
+                    <label class="check-row"><input id="allow-forks" type="checkbox"><span class="option-copy"><strong>Public read-only fork checks</strong><small>Server-defined Ethereum, Base, or BNB RPC profiles pinned to a verified block.</small></span></label>
+                  </fieldset>
+                  <div class="campaign-controls" aria-label="Test campaign settings">
+                    <label>Resource intensity
+                      <select id="test-campaign-mode">
+                        <option value="recommended" selected>Recommended for this contract</option>
+                        <option value="smoke">Fast bounded pass</option>
+                        <option value="deep">Deeper pass</option>
+                        <option value="custom">Custom ceiling</option>
+                      </select>
+                    </label>
+                    <div id="custom-campaign-fields" class="campaign-fields hidden">
+                      <label>Generated property checks <input id="generated-test-budget" type="number" min="1" max="50" step="1" value="25"></label>
+                      <label>Fuzz runs per test <input id="fuzz-runs" type="number" min="1" max="100000" step="1" value="10000"></label>
+                      <label>Invariant runs <input id="invariant-runs" type="number" min="1" max="10000" step="1" value="256"></label>
+                      <label>Invariant depth <input id="invariant-depth" type="number" min="1" max="1000" step="1" value="128"></label>
+                      <label>Execution budget (minutes) <input id="campaign-timeout" type="number" min="1" max="120" step="1" value="120"></label>
+                    </div>
+                    <p class="campaign-help">These are boundaries, not extra audit modes. The AI auditor decides whether testing is useful; a clean source-only conclusion is valid when no material runtime question remains.</p>
+                  </div>
+                </div>
+              </details>
+            </div>
+            <div class="audit-actions">
+              <button id="cancel-audit" class="button secondary hidden" type="button">Cancel audit</button>
+              <button id="run-audit" class="button primary" type="button">Run evidence-backed audit</button>
+            </div>
+          </div>
+          <details class="future-services">
+            <summary>Post-MVP remediation services</summary>
+            <p class="future-intro">These options show the planned product boundary. Only read-only auditing is available in this MVP.</p>
+            <div class="future-service-grid">
+              <article class="future-service current">
+                <span class="service-state available">Current MVP</span>
+                <h3>Audit only</h3>
+                <p>Analyze an isolated copy, generate tests and reports, and never modify the submitted file.</p>
+              </article>
+              <article class="future-service" aria-disabled="true">
+                <span class="service-state">Coming later</span>
+                <h3>Propose repairs</h3>
+                <p>Generate a finding-linked patch for review and download without applying it to the developer’s project.</p>
+                <button class="button secondary" type="button" disabled>Outside MVP</button>
+              </article>
+              <article class="future-service" aria-disabled="true">
+                <span class="service-state">Coming later</span>
+                <h3>Repair workspace</h3>
+                <p>Apply approved patches only in a separate branch, worktree, or copy, then rerun the complete audit.</p>
+                <button class="button secondary" type="button" disabled>Outside MVP</button>
+              </article>
+            </div>
+          </details>
+          <p id="form-error" class="error" role="alert"></p>
+        </div>
+
+      </section>
+
+      <section id="results" class="results hidden" aria-labelledby="results-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Report</p><h2 id="results-title" tabindex="-1">Audit findings and readiness</h2></div>
+          <div id="export-actions" class="export-actions"></div>
+        </div>
+        <section class="copilot-panel" aria-labelledby="copilot-title">
+          <div class="copilot-heading">
+            <div><p class="eyebrow">Live audit dialogue</p><h3 id="copilot-title">Audit Copilot</h3></div>
+            <span id="copilot-status" class="status-pill idle" aria-live="polite">Waiting</span>
+          </div>
+          <p class="copilot-intro">One interpreted audit stream: live progress, evidence conclusions, testing outcomes, limitations, required actions, and source-cited follow-up answers.</p>
+          <div id="copilot-feed" class="copilot-feed" role="log" aria-live="polite" aria-label="Audit Copilot activity"></div>
+          <div id="copilot-live-status" class="copilot-live-status idle" aria-live="polite" aria-label="Current audit activity">
+            <span id="copilot-live-spinner" class="activity-spinner hidden" aria-hidden="true"></span>
+            <div class="copilot-live-copy">
+              <strong id="copilot-live-title">Waiting to begin</strong>
+              <span id="copilot-live-detail">Start an audit to see its current operation.</span>
+            </div>
+            <span id="copilot-live-count" class="copilot-live-count"></span>
+          </div>
+          <div class="copilot-compose">
+            <label for="copilot-input">Ask about the audit or provide requested test input</label>
+            <textarea id="copilot-input" rows="3" maxlength="2000" placeholder="Example: For the local test, use actor-0 as owner, name Test Token, symbol TST, and initial supply 1,000,000."></textarea>
+            <div class="copilot-compose-actions">
+              <label for="fork-network" class="compact-field hidden" aria-hidden="true">Fork network
+                <select id="fork-network">
+                  <option value="ethereum">Ethereum Mainnet</option>
+                  <option value="base">Base Mainnet</option>
+                  <option value="bnb">BNB Smart Chain</option>
+                </select>
+              </label>
+              <button id="copilot-send" class="button primary" type="button" disabled>Ask Audit Copilot</button>
+            </div>
+            <p id="copilot-help" class="copilot-help">Questions and supplied information start an additional AI turn. Continue testing authorizes an AI-led audit loop for the selected campaign time window using local and read-only fork tools. Public RPC services are rate-limited and observe requested chain data. Press Enter to send or Shift+Enter for a new line.</p>
+            <p id="copilot-error" class="error" role="alert"></p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer>Automated review is incomplete and is not a security guarantee. Human review is required before production use.</footer>
+    <script type="module" src="/app.js?v=20260720-session-recovery"></script>
+  </body>
+</html>
