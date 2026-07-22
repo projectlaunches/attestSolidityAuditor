@@ -25,6 +25,14 @@ jobs:
       - name: Install locked dependencies without lifecycle scripts
         run: npm ci --ignore-scripts
 
+      - name: Install Foundry 1.7.1
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.7.1
+
+      - name: Cache Solidity 0.8.20 for offline integration tests
+        run: forge build samples/SmokeCounter.sol --use 0.8.20 --force
+
       - name: Run syntax and regression checks
         run: npm run check
 
