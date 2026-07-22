@@ -21,6 +21,6 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "solhint-community": "4.0.1"
+    "solhint": "6.2.3"
   }
 }

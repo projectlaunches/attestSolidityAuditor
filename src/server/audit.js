@@ -917,7 +917,8 @@ async function runFullQualityDiagnostics(job) {
   throwIfCancelled(job);
   const configPath = path.join(job.jobDir, ".solhint.json");
   await writeFile(configPath, `${JSON.stringify({ extends: "solhint:recommended" }, null, 2)}\n`, { mode: 0o600 });
-  const result = await runCommand(capability.command, ["--formatter", "json", "src/Target.sol"], {
+  const reportNamesBefore = new Set(await readdir(job.jobDir));
+  const result = await runCommand(capability.command, ["--disc", "--save", "--config", ".solhint.json", "--formatter", "json", "src/Target.sol"], {
     cwd: job.jobDir,
     timeoutMs: 60_000,
     maxOutputBytes: 1_000_000,
@@ -925,18 +926,29 @@ async function runFullQualityDiagnostics(job) {
     isCancelled: () => job.cancelRequested,
   });
   throwIfCancelled(job);
+  let reportOutput = result.stdout;
+  if (!reportOutput.trim()) {
+    const reportNames = (await readdir(job.jobDir))
+      .filter((name) => !reportNamesBefore.has(name) && /^\d{14}_solhintReport\.txt$/.test(name));
+    if (reportNames.length === 1) {
+      const reportPath = path.join(job.jobDir, reportNames[0]);
+      const reportStat = await stat(reportPath);
+      if (reportStat.isFile() && reportStat.size <= 1_000_000) reportOutput = await readFile(reportPath, "utf8");
+      await unlink(reportPath).catch(() => {});
+    }
+  }
   let diagnostics = [];
   let parseError = null;
-  try { diagnostics = normalizeSolhintOutput(result.stdout, capability.version).slice(0, 500); }
+  try { diagnostics = normalizeSolhintOutput(reportOutput, capability.version).slice(0, 500); }
   catch (error) { parseError = error.message; }
   const status = !parseError && !result.signal && !result.timedOut && !result.truncated ? "completed" : result.timedOut ? "timed-out" : "failed";
   job.qualityFindings = diagnostics;
-  const run = toToolRun("solhint-quality", capability.version, status, result);
+  const run = toToolRun("solhint-quality", capability.version, status, { ...result, stdout: reportOutput });
   run.evidenceEligible = false;
   run.findingCount = diagnostics.length;
   run.parseError = parseError;
   job.toolRuns.push(run);
-  await writeFile(path.join(job.jobDir, "artifacts", "solhint.stdout.txt"), result.stdout);
+  await writeFile(path.join(job.jobDir, "artifacts", "solhint.stdout.txt"), reportOutput);
   await writeFile(path.join(job.jobDir, "artifacts", "solhint.stderr.txt"), result.stderr);
   addEvent(job, "quality", status, status === "completed"
     ? `Solhint recorded ${diagnostics.length} non-corroborating quality diagnostic(s)`

@@ -10,6 +10,7 @@ publishing the full working conversation or private model reasoning.
 | --- | --- | --- |
 | July 17 | Product thesis and dependency gate | Defined AI-first auditing, local-only scope, immutable source, and dependency review before installation |
 | July 18 | Working tool pipeline and browser UI | Added source intake, Slither, Aderyn, Solhint, Foundry compilation, Anvil groundwork, setup guide, and normalized evidence |
+| July 21 | Official Solhint migration | Replaced the deprecated community package with exact-pinned Solhint 6.2.3, removed the old glob/inflight chain, disabled update checks, and preserved its quality-only evidence boundary |
 | July 19 | AI-led evidence workflow | Moved whole-contract reasoning before testing, added generated Foundry checks, final evidence review, public-chain fork controls, and gated exports |
 | July 20 | Unified three-level audit controller | Replaced harness-first behavior with one AI controller, added the three engagement levels, constructor-aware Anvil deployment, and local release hardening |
 | July 21 | End-to-end reliability and presentation | Repaired continuation and sign-in regressions, made the AI conclusion authoritative, consolidated the dialogue, bounded retries, and stabilized live progress |

@@ -9,16 +9,16 @@ const data = {
     { id: "anvil", available: true, version: "1.7.1" },
     { id: "slither", available: false, version: null },
     { id: "aderyn", available: true, version: "0.6.8" },
-    { id: "solhint", available: true, version: "4.0.1" },
+    { id: "solhint", available: true, version: "6.2.3" },
   ],
-  codex: { available: true, version: "0.144.5" },
+  codex: { available: true, version: "0.145.0" },
 };
 
 test("setup status maps runtime, analyzers, and Codex without inventing availability", () => {
   assert.equal(capabilityStatus(data, "node").available, true);
   assert.equal(capabilityStatus(data, "wsl").text, "Running inside WSL");
   assert.equal(capabilityStatus(data, "slither").available, false);
-  assert.equal(capabilityFor(data, "codex").version, "0.144.5");
+  assert.equal(capabilityFor(data, "codex").version, "0.145.0");
   assert.equal(capabilityStatus(data, "unknown").available, false);
 });
 

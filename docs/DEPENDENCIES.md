@@ -5,22 +5,19 @@ end of the build.
 
 ## JavaScript packages
 
-- `@openai/codex` is exact-pinned at `0.144.5` and installed with lifecycle
+- `@openai/codex` is exact-pinned at `0.145.0` and installed with lifecycle
   scripts disabled.
-- `solhint-community` is exact-pinned at `4.0.1` and installed with lifecycle
-  scripts disabled. Its registry metadata reports MIT. The current dependency
-  tree passes `npm audit`, but npm reports deprecated transitive packages
-  `inflight@1.0.6` and `glob@8.1.0`. Solhint therefore runs as a bounded local
-  lint lane in **Full audit suite** mode and is not trusted as security
-  corroboration.
+- Official `solhint` is exact-pinned at `6.2.3` and installed with lifecycle
+  scripts disabled. Its registry metadata reports MIT. It replaced
+  `solhint-community@4.0.1`, removing the deprecated `inflight@1.0.6` and
+  `glob@8.1.0` dependency chain. Solhint runs with an explicit job-local config
+  and update checks disabled as a bounded lint lane in **Full audit suite**
+  mode; it is not trusted as security corroboration.
 
-Latest release check (2026-07-20): `npm audit --offline` reported no known
-cached vulnerabilities across production and development dependencies, and
-`npm ci --ignore-scripts --dry-run` completed.
-The online `npm audit --audit-level=high` check could not reach the npm registry
-in the restricted validation environment (`EAI_AGAIN`), so an online advisory
-refresh remains a release-machine gate. No package was added by the production
-hardening work.
+Migration check (2026-07-21): the network-enabled install reported zero known
+vulnerabilities after adding official Solhint and again after removing the
+community package. A fresh online `npm audit --audit-level=high` remains a
+release-machine gate.
 
 ## Aderyn
 

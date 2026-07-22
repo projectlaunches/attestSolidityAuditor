@@ -11,7 +11,7 @@ add, not by logo count. A missing or inapplicable tool is reported as such.
 | Compiler matrix | Active controller adapter | Offline compiler/version compatibility | Capped Forge build profiles with exact status |
 | Slither | Active controller adapter | Mature broad or detector-focused static analysis | JSON plus normalized source-bound evidence |
 | Aderyn 0.6.8 | Active controller adapter | Independent Rust static opinion | Pinned JSON adapter plus raw artifacts |
-| Solhint Community 4.0.1 | Full-suite quality lane | Fast lint and hygiene | Pinned JSON pass after AI profiling; excluded from security corroboration |
+| Solhint 6.2.3 | Full-suite quality lane | Fast lint and hygiene | Exact-pinned JSON pass after AI profiling; update checks disabled and excluded from security corroboration |
 | solc SMTChecker | Deferred adapter | Compiler-native BMC/CHC proofs and counterexamples | Standard JSON diagnostics |
 | Mythril | Deferred adapter | Detector-driven multi-transaction symbolic witnesses | JSONv2; strict timeout |
 | Echidna | Deferred adapter | Stateful property fuzzing and minimized counterexamples | JSON campaign/corpus output |
@@ -35,7 +35,7 @@ Primary sources:
 - Medusa: https://github.com/crytic/medusa
 - Halmos: https://github.com/a16z/halmos
 - Wake: https://github.com/Ackee-Blockchain/wake
-- Solhint community: https://github.com/solhint-community/solhint-community
+- Solhint: https://github.com/protofire/solhint
 - Scribble: https://github.com/ConsenSys/scribble
 - hevm: https://github.com/argotorg/hevm
 - Kontrol: https://github.com/runtimeverification/kontrol

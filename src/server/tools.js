@@ -36,9 +36,9 @@ export async function probeTools(projectRoot) {
   }
   try {
     await access(localSolhint, constants.X_OK);
-    const manifest = JSON.parse(await readFile(path.join(projectRoot, "node_modules", "solhint-community", "package.json"), "utf8"));
-    const expectedEntry = path.join(projectRoot, "node_modules", "solhint-community", "solhint.js");
-    if (manifest.name === "solhint-community" && manifest.version === "4.0.1" && await realpath(localSolhint) === await realpath(expectedEntry)) {
+    const manifest = JSON.parse(await readFile(path.join(projectRoot, "node_modules", "solhint", "package.json"), "utf8"));
+    const expectedEntry = path.join(projectRoot, "node_modules", "solhint", "solhint.js");
+    if (manifest.name === "solhint" && manifest.version === "6.2.3" && await realpath(localSolhint) === await realpath(expectedEntry)) {
       solhintCommand = localSolhint;
       pinnedSolhintVersion = manifest.version;
     }
